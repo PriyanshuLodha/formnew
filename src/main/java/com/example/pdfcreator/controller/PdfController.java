@@ -1,17 +1,19 @@
 package com.example.pdfcreator.controller;
-import com.example.pdfcreator.entity.LoginEntity;
-import com.example.pdfcreator.entity.QrUserEntity;
-import com.example.pdfcreator.entity.ResidenceCertificateForm;
-import com.example.pdfcreator.entity.UserEntity;
+import com.example.pdfcreator.entity.*;
 import com.example.pdfcreator.repo.UserRepo;
 import com.example.pdfcreator.service.CustomUserDetailService;
+import com.example.pdfcreator.service.PrivateMailSender;
 import com.example.pdfcreator.service.TwoFactorAuthService;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 
 //
@@ -73,6 +75,8 @@ public class PdfController {
     TwoFactorAuthService twoFactorAuthService;
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    PrivateMailSender privateMailSender;
     @GetMapping("/generate")
     public String generatePdf() {
         Document document = new Document();
@@ -145,7 +149,8 @@ public class PdfController {
     public String getResidenceForm(@RequestBody ResidenceCertificateForm certificateForm){
         Document document = new Document();
         try {
-            PdfWriter.getInstance(document, new FileOutputStream("C:\\\\Users\\\\Priyanshu\\\\OneDrive\\\\Desktop\\\\Training\\\\pdfcreator\\\\src\\\\main\\\\java\\\\com\\\\example\\\\pdfcreator\\\\datafolder\\\\iTextHelloWorld.pdf"));
+            PdfWriter writer=PdfWriter.getInstance(document, new FileOutputStream("C:\\\\Users\\\\Priyanshu\\\\OneDrive\\\\Desktop\\\\Training\\\\pdfcreator\\\\src\\\\main\\\\java\\\\com\\\\example\\\\pdfcreator\\\\datafolder\\\\"+certificateForm.getName()+"\\\\hello2.pdf"));
+            writer.setEncryption("12345".getBytes(), "12345".getBytes(), PdfWriter.ALLOW_PRINTING, PdfWriter.ENCRYPTION_AES_128);
         }catch (Exception e){
             return "not added";
         };
@@ -199,5 +204,15 @@ public class PdfController {
         }
         document.close();
         return "added success";
+    }
+    @PostMapping("/sendprivatemail")
+    public String sendPrivateMail(@RequestBody ListOfUser listOfUser) throws MessagingException {
+        privateMailSender.sendPrivateMail(listOfUser);
+        return "mail sent successfully";
+    }
+    @GetMapping("/getdata")
+    public java.util.List<UserEntity> getUserDetails(){
+        List<UserEntity> userDetailsList=customUserDetailService.findAllUser();
+        return userDetailsList;
     }
 }

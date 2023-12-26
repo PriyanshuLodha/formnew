@@ -1,5 +1,6 @@
 package com.example.pdfcreator.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,9 +15,12 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Table(name = "user")
 public class UserEntity implements UserDetails {
+    public UserEntity() {
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -61,4 +65,5 @@ public class UserEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
